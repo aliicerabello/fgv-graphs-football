@@ -53,7 +53,7 @@ def selecionar_jogo_aleatorio():
 
 
 # Executa
-if __name__ == "_main_":
+if __name__ == "__main__":
     id_jogo = selecionar_jogo_aleatorio()
     if id_jogo:
         print(f"ID para usar: {id_jogo}")
