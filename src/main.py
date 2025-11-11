@@ -1,5 +1,5 @@
 from find_id import selecionar_jogo_aleatorio
-from modularizado import analisar_rede
+from passes import analisar_rede
 from matching import analisar_matching
 
 
