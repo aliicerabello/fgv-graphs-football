@@ -1,9 +1,9 @@
+import os
 from statsbombpy import sb
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
-import os
 
 
 def analisar_matching(match_id):

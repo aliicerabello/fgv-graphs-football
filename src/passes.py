@@ -15,6 +15,7 @@ def analisar_rede(match_id):
     DATA_DIR = os.path.join(BASE_DIR, "data")
     FIG_DIR = os.path.join(BASE_DIR, "figures")
 
+    # Capturamos as exceções mais prováveis para evitar 'except Exception' genérico
     try:
         print(f"Buscando jogo ID: {match_id}...")
         events = sb.events(match_id=match_id)
@@ -30,12 +31,35 @@ def analisar_rede(match_id):
 
         # === Funções internas ===
 
+        def leads_to_shot(passe, chutes_time):
+            """Retorna True se o passe leva a um chute dentro de 5s na mesma posse."""
+            if chutes_time is None or chutes_time.empty:
+                return False
+            try:
+                passe_s = (passe.get('minute', 0) or 0) * \
+                    60 + (passe.get('second', 0) or 0)
+            except (TypeError, KeyError):
+                return False
+
+            for _, chute in chutes_time.iterrows():
+                try:
+                    chute_s = (chute.get('minute', 0) or 0) * \
+                        60 + (chute.get('second', 0) or 0)
+                except (TypeError, KeyError):
+                    continue
+                delta = chute_s - passe_s
+                if 0 < delta <= 5 and passe.get('possession') == chute.get('possession'):
+                    return True
+            return False
+
         def identificar_passes_decisivos(passes_df, team_name, all_events):
             decisivos = []
+            # chutes agora é usado pela função leads_to_shot
             chutes = all_events[(all_events["type"] == "Shot") & (
                 all_events["team"] == team_name)]
 
             for _, passe in passes_df.iterrows():
+                # Captura de exceções específicas dentro do loop
                 try:
                     condicoes = [
                         passe.get("pass_goal_assist"),
@@ -43,16 +67,16 @@ def analisar_rede(match_id):
                         passe.get("pass_through_ball"),
                         passe.get("pass_cross"),
                         passe.get("play_pattern") == "Counter Attack",
+                        leads_to_shot(passe, chutes),
                     ]
                     if any(condicoes) and pd.notna(passe.get("pass_recipient")):
-                        decisivos.append(
-                            {
-                                "player": passe["player"],
-                                "pass_recipient": passe["pass_recipient"],
-                                "team": team_name,
-                            }
-                        )
-                except (KeyError, TypeError):
+                        decisivos.append({
+                            "player": passe["player"],
+                            "pass_recipient": passe["pass_recipient"],
+                            "team": team_name,
+                        })
+                except (KeyError, TypeError, IndexError):
+                    # ignora eventos malformados e continua
                     continue
 
             return decisivos
@@ -102,12 +126,8 @@ def analisar_rede(match_id):
                 G, pos, edge_color="gray", alpha=0.5, arrows=True, arrowsize=15)
             nx.draw_networkx_labels(G, pos, font_size=8, font_weight="bold")
 
-            plt.title(
-                f"REDE DE PASSES DECISIVOS - {team_name.upper()}\nJogo ID: {match_id}",
-                fontsize=13,
-                fontweight="bold",
-                pad=12,
-            )
+            plt.title(f"REDE DE PASSES DECISIVOS - {team_name.upper()}\nJogo ID: {match_id}",
+                      fontsize=13, fontweight="bold", pad=12)
             plt.axis("off")
             plt.tight_layout()
             plt.savefig(filename, dpi=300,
@@ -144,9 +164,9 @@ def analisar_rede(match_id):
                 fig_path, f"grafo_passes_{time}_{match_id}.png")
             visualizar_grafo(G, time, fig_file)
 
-            print(f"   Arquivos salvos:")
+            print("   Arquivos salvos:")
             print(f"     - {os.path.relpath(matriz_path, BASE_DIR)}")
             print(f"     - {os.path.relpath(fig_file, BASE_DIR)}")
 
-    except Exception as e:
+    except (OSError, ValueError, KeyError, IndexError, nx.NetworkXError) as e:
         print(f"[ERRO GERAL em Rede] {e.__class__.__name__}: {e}")
