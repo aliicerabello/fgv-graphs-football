@@ -1,0 +1,356 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath, amssymb, graphicx, booktabs, array, geometry, hyperref, listings, xcolor, float, tabularx}
+\geometry{a4paper, margin=2.5cm}
+
+% --- Definição de Estilo do Código ---
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.98,0.98,0.98}
+
+\lstdefinestyle{PythonStyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegray},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize, 
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=Python,
+    extendedchars=true,
+    inputencoding=utf8, 
+    literate={ã}{{\~a}}1 {é}{{\'e}}1 {ç}{{\c c}}1 {í}{{\'i}}1 {á}{{\'a}}1 {ú}{{\'u}}1 {õ}{{\~o}}1 {ó}{{\'o}}1
+}
+\lstset{style=PythonStyle}
+% -------------------------------------
+
+\title{Análise Computacional de Estratégias Coletivas no Futebol: \\
+Uma Aplicação da Teoria dos Grafos a Dados Reais de Partidas}
+\author{Alice Rabello Oliveira \\ Pablo Levy Fernandes Alcântara \\ Raul Medici Martinelli}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty} 
+
+\chapter*{Resumo}
+Este trabalho aplica conceitos de Teoria dos Grafos à análise de padrões táticos no futebol, representando jogadores como vértices e passes decisivos como arestas direcionadas e ponderadas. A metodologia é aplicada à final da Copa do Mundo de 2022 entre Argentina e França, utilizando dados da plataforma StatsBomb. Os resultados identificam estruturas ofensivas, defensivas e duelos táticos que corroboram interpretações de analistas esportivos, demonstrando o potencial da análise computacional no entendimento de dinâmicas coletivas.
+
+\newpage 
+
+\chapter{Introdução}
+A Teoria dos Grafos tem se mostrado uma ferramenta poderosa para compreender a complexidade tática do futebol moderno. Representar passes, pressões e confrontos diretos como grafos possibilita quantificar relações invisíveis à observação humana e apoiar decisões estratégicas com base em dados.
+
+Neste estudo, analisamos a final da Copa do Mundo de 2022 entre Argentina e França, partida considerada um dos maiores espetáculos táticos da década. O objetivo é aplicar um modelo computacional para identificar os \textit{nós} (jogadores) e as \textit{arestas} (passes decisivos e duelos diretos) que estruturam as redes coletivas. A metodologia é escalável e replicável para qualquer jogo da base StatsBomb.
+
+A \textbf{importância da análise de dados} no futebol moderno é inegável, movendo-se de uma arte empírica para uma ciência baseada em dados. O uso de métricas avançadas e modelos matemáticos, como a Teoria dos Grafos, permite aos clubes e analistas \textbf{identificar padrões táticos invisíveis à observação humana} e transformar dados brutos em inteligência tática acionável \cite{statsperform}. Este modelo visa quantificar as interações em campo para entender a dinâmica coletiva de alto nível.
+
+O código completo e os arquivos de análise estão disponíveis em repositório público no GitHub: \url{https://github.com/pablolevy/futebol-grafos-2022}
+
+\section{Objetivos}
+\begin{itemize}
+    \item Aplicar a Teoria dos Grafos para representar jogadores como vértices e passes decisivos como arestas direcionadas e ponderadas.
+    \item Identificar as estruturas ofensivas e defensivas de cada equipe.
+    \item Reconhecer grupos de colaboração frequente e jogadores com maior envolvimento nas trocas de bola.
+    \item Caracterizar os \textit{matchings} mais relevantes entre jogadores adversários.
+\end{itemize}
+
+\chapter{Fundamentação Teórica: Teoria dos Grafos Aplicada ao Futebol}
+\section{Grafos Dirigidos e Ponderados}
+Um grafo dirigido (ou dígrafo) $G = (V, E)$ é composto por um conjunto de vértices ($V$) e um conjunto de arestas direcionadas ($E$). Em nosso modelo, $V$ são os jogadores e $E$ são os passes decisivos. O grafo é \textbf{ponderado} ($G = (V, E, w)$), onde $w(u,v)$ representa o peso da aresta, que é a frequência de passes decisivos do jogador $u$ para $v$.
+
+\section{Matriz de Adjacência e Graus de Vértices}
+A análise das matrizes de adjacência baseia-se no cálculo do Grau de Entrada e Saída. O Grau de Saída indica a capacidade de distribuição de um jogador, enquanto o Grau de Entrada mede o quanto ele é buscado como alvo na progressão da jogada.
+O \textbf{Grau de Saída} ($\text{out-degree}$) e o \textbf{Grau de Entrada} ($\text{in-degree}$) são calculados:
+$$
+\text{out-degree}(u) = \sum_{v \in V} A_{uv} \quad \text{e} \quad \text{in-degree}(v) = \sum_{u \in V} A_{uv}
+$$
+
+\section{Grafos Bipartidos e Análise de Matchings Ponderados}
+
+O conceito de \textit{matching} (ou emparelhamento) é uma das estruturas fundamentais da Teoria dos Grafos e tem aplicação direta na análise de confrontos individuais em esportes coletivos. Em um \textbf{grafo bipartido} $G = (U, V, E)$, os vértices são divididos em dois conjuntos disjuntos $U$ e $V$, de modo que cada aresta conecta um vértice de $U$ a um vértice de $V$. No contexto deste trabalho, $U$ representa os \textbf{jogadores ofensivos} de uma equipe, enquanto $V$ representa os \textbf{defensores} da equipe adversária. Cada aresta $(u, v) \in E$ indica que o atacante $u$ foi diretamente confrontado pelo defensor $v$ em uma ação de jogo (como desarme, bloqueio, interceptação ou falta sofrida).
+
+Um \textbf{matching} $M \subseteq E$ é um conjunto de arestas sem vértices em comum — isto é, cada jogador participa de no máximo um confronto dentro desse conjunto. Essa estrutura representa o conjunto de duelos exclusivos que podem ocorrer simultaneamente entre os dois conjuntos de jogadores.
+
+O modelo computacional implementado neste trabalho utiliza a função \texttt{max\_weight\_matching} da biblioteca \texttt{NetworkX}, que calcula o \textbf{matching máximo ponderado}. Nesse caso, o algoritmo busca o subconjunto $M \subseteq E$ que \textbf{maximiza a soma dos pesos das arestas}, onde o peso $w(u,v)$ indica a intensidade do confronto entre o atacante $u$ e o defensor $v$. Assim, o matching retornado não é necessariamente o que contém o maior número de duelos (\textit{matching máximo cardinal}), mas sim aquele que concentra os duelos de \textbf{maior relevância tática}.
+
+\begin{equation}
+M^* = \arg\max_{M \subseteq E} \sum_{(u,v) \in M} w(u,v)
+\end{equation}
+
+No contexto do futebol, essa formulação tem grande utilidade interpretativa. Ela permite identificar os \textbf{duelos de maior impacto} em uma partida, priorizando as interações mais intensas — como desarmes decisivos, bloqueios de finalizações e interceptações em zonas críticas. Cada peso $w(u,v)$ é calculado com base no tipo e na importância da ação defensiva (por exemplo, 3 pontos para um desarme vitorioso, 2 para um bloqueio e 1 para uma interceptação), o que confere significado tático direto à métrica.
+
+A análise do \textit{matching máximo ponderado} fornece informações sobre:
+\begin{itemize}
+    \item \textbf{Eficiência defensiva}: defensores com múltiplas arestas de alto peso indicam sobrecarga ou foco de marcação;
+    \item \textbf{Direcionamento ofensivo}: atacantes com alto peso acumulado refletem a concentração das ações ofensivas;
+    \item \textbf{Equilíbrio entre setores}: um matching mais distribuído revela uma equipe que varia os pontos de ataque, enquanto um matching concentrado indica dependência tática de um setor ou jogador específico.
+\end{itemize}
+
+Em termos táticos, o \textbf{matching máximo ponderado} funciona como uma métrica objetiva de relevância dos duelos diretos. Ele identifica, entre todos os confrontos possíveis, aqueles de maior intensidade acumulada — isto é, os embates que mais influenciaram o comportamento coletivo das equipes. Na final analisada, o matching de maior peso foi o duelo \textbf{Messi $\leftrightarrow$ Camavinga}, o que reflete a decisão do técnico francês Didier Deschamps de posicionar Camavinga como lateral-esquerdo com a função de acompanhar Messi entre as linhas. Essa observação é corroborada pela análise do \textit{Citizen Digital} (2022), que destaca que “\textit{Camavinga, being a natural midfielder, offered flexibility, as he could use his skill set to track Messi’s every move and create overload down midfield}” \cite{citizen_camavinga}.
+
+\chapter{Metodologia}
+
+\section{Ferramentas e Bibliotecas Utilizadas}
+A análise foi inteiramente desenvolvida em Python, utilizando um conjunto de bibliotecas específicas para manipulação de dados de futebol e modelagem de grafos:
+\begin{itemize}
+    \item \texttt{statsbombpy}: Biblioteca de código aberto fundamental para a \textbf{coleta e acesso aos dados brutos} (eventos de passes, chutes, etc.) da plataforma StatsBomb.
+    \item \texttt{pandas}: Utilizada para a \textbf{organização, processamento e filtragem} dos dados brutos em DataFrames, culminando na criação das matrizes de adjacência (CSV).
+    \item \texttt{networkx}: Biblioteca central para a \textbf{modelagem do grafo}. Ela permite a criação dos objetos \texttt{DiGraph} (Redes de Passes) e \texttt{Graph} (Matchings) e o cálculo de propriedades como os graus de vértice.
+    \item \texttt{matplotlib}: Utilizada para a \textbf{visualização} dos grafos, permitindo que as arestas e nós sejam renderizados de forma proporcional ao seu peso e grau, respectivamente.
+\end{itemize}
+
+\section{Definição e Filtragem de Passes Decisivos}
+
+A determinação de um passe como "decisivo" é o passo crucial para construir a rede. Nossas arestas representam apenas as interações que avançam o sistema ofensivo em direção a uma ameaça de gol.
+
+\subsection{Critérios e Parâmetros de Filtragem}
+O código utiliza a função \texttt{identificar\_passes\_decisivos} para aplicar um conjunto de critérios estritos sobre os eventos de passe. Um passe é considerado decisivo se atender a \textbf{pelo menos uma} das seguintes condições, garantindo que a interação seja de alto valor tático:
+\begin{enumerate}
+    \item \textbf{Criação de Gol ou Finalização} (\texttt{pass\_goal\_assist} ou \texttt{pass\_shot\_assist}).
+    \item \textbf{Quebra de Linhas} (\texttt{pass\_through\_ball}).
+    \item \textbf{Ataque pela Lateral} (\texttt{pass\_cross}).
+    \item \textbf{Transição Rápida} (\texttt{play\_pattern == "Counter Attack"}).
+\end{enumerate}
+Uma \textbf{condição obrigatória} é que o passe deve ter um destinatário identificado (\texttt{pd.notna(passe.get("pass\_recipient"))}).
+
+\begin{figure}[H]
+    \centering
+    \begin{lstlisting}[caption={Trecho do Código: Função identificar\_passes\_decisivos (passes.py)}]
+def identificar_passes_decisivos(passes_df, team_name, all_events):
+    decisivos = []
+    
+    for _, passe in passes_df.iterrows():
+        try:
+            condicoes = [
+                passe.get("pass_goal_assist"),     # 1. Assistencia para gol
+                passe.get("pass_shot_assist"),     # 2. Assistencia para chute
+                passe.get("pass_through_ball"),    # 3. Bola enfiada
+                passe.get("pass_cross"),           # 4. Cruzamento
+                passe.get("play_pattern") == "Counter Attack", # 5. Contra-ataque
+            ]
+            if any(condicoes) and pd.notna(passe.get("pass_recipient")):
+                decisivos.append(
+                    {
+                        "player": passe["player"],
+                        "pass_recipient": passe["pass_recipient"],
+                        "team": team_name,
+                    }
+                )
+        except (KeyError, TypeError):
+            continue
+
+    return decisivos
+\end{lstlisting}
+    \caption{Lógica de Filtragem da Função \texttt{identificar\_passes\_decisivos}}
+    \label{fig:parametros_passes}
+\end{figure}
+
+\section{Modelagem do Grafo}
+\subsection{Rede de Passes Decisivos}
+O código a seguir demonstra a criação do grafo dirigido e ponderado a partir da matriz de adjacência:
+
+\begin{lstlisting}[caption={Trecho do Código: Criação e Ponderação do Grafo de Passes}]
+import pandas as pd
+import networkx as nx
+
+# 1. Carregamento da Matriz de Adjacencia
+df_passes = pd.read_csv("matriz_passes_Argentina_3869685.csv", index_col=0)
+G_passes = nx.DiGraph()
+
+# 2. Inclusao dos nos (jogadores)
+G_passes.add_nodes_from(df_passes.index)
+
+# 3. Adicao das arestas ponderadas (frequencia de passes)
+for i in df_passes.index:
+    for j in df_passes.columns:
+        weight = df_passes.loc[i, j]
+        if weight > 0:
+            G_passes.add_edge(i, j, weight=weight)
+\end{lstlisting}
+
+\subsection{Confrontos Diretos (\textit{Matchings})}
+Os confrontos são modelados como um grafo bipartido, utilizando a matriz de confrontos:
+
+\begin{lstlisting}[caption={Trecho do Código: Criação do Grafo Bipartido de Matchings}]
+# 1. Carregamento da Matriz de Matchings
+df_matchings = pd.read_csv("matriz_defensores_Argentina_France_3869685.csv", index_col=0)
+G_match = nx.Graph()
+
+# 2. Definicao dos dois conjuntos de nos (Equipe A e Equipe B)
+nodes_a = list(df_matchings.index)
+nodes_b = list(df_matchings.columns)
+
+# 3. Adicao das arestas ponderadas (frequencia de confrontos)
+for player_a in nodes_a:
+    for player_b in nodes_b:
+        weight = df_matchings.loc[player_a, player_b]
+        if weight > 0:
+            G_match.add_edge(player_a, player_b, weight=weight)
+\end{lstlisting}
+
+\chapter{Resultados Computacionais}
+
+\section{Análise do Grau de Vértices (Passes Decisivos)}
+A análise dos graus é fundamental para identificar a importância posicional de cada jogador dentro da rede.
+
+\subsection{Argentina: O Foco no Centro}
+A Tabela \ref{tab:graus_arg} demonstra uma clara concentração da distribuição de passes no meio-campo. \textbf{Rodrigo De Paul} e \textbf{Enzo Fernandez} não apenas lideram em volume de passes concedidos ($\text{out-degree}$), mas a diferença positiva acentuada confirma que são primariamente distribuidores e iniciadores.
+
+\begin{table}[H]
+    \centering
+    \caption{Graus de Entrada e Saída (Passes Decisivos) - Argentina}
+    \label{tab:graus_arg}
+    \begin{tabularx}{\textwidth}{lXXXc} % Ajustado para tabularx
+    \toprule
+    \textbf{Jogador} & \textbf{Grau de Saída} & \textbf{Grau de Entrada} & \textbf{Diferença (Sai - Ent)} & \textbf{Papel no Fluxo} \\
+    \midrule
+    Rodrigo Javier De Paul & 68 & 44 & +24 & \textbf{Conector/Distribuidor Primário} \\
+    Enzo Fernandez & 67 & 47 & +20 & Pivô Central de Distribuição \\
+    Nicolás Hernán Otamendi & 56 & 48 & +8 & Conector de Saída de Bola (Defesa) \\
+    Lionel Andrés Messi Cuccittini & 44 & 43 & +1 & Equilíbrio (Conector Tático Principal) \\
+    Julián Álvarez & 27 & 31 & -4 & Alvo de Passes na Profundidade \\
+    Ángel F. Di María Hernández & 25 & 28 & -3 & Alvo/Finalizador (Extremidade) \\
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{França: A Construção Defensiva}
+Na Tabela \ref{tab:graus_fra}, o destaque fica para a linha defensiva. O zagueiro \textbf{Raphaël Varane} apresenta o maior Grau de Saída.
+
+\begin{table}[H]
+    \centering
+    \caption{Graus de Entrada e Saída (Passes Decisivos) - França}
+    \label{tab:graus_fra}
+    \begin{tabularx}{\textwidth}{lXXXc} % Ajustado para tabularx
+    \toprule
+    \textbf{Jogador} & \textbf{Grau de Saída} & \textbf{Grau de Entrada} & \textbf{Diferença (Sai - Ent)} & \textbf{Papel no Fluxo} \\
+    \midrule
+    Raphaël Varane & 60 & 37 & +23 & \textbf{Iniciador Defensivo Primário} \\
+    Jules Koundé & 51 & 38 & +13 & Conector Lateral de Construção \\
+    Aurélien Djani Tchouaméni & 50 & 33 & +17 & Conector de Meio-Campo \\
+    Theo Bernard François Hernández & 46 & 28 & +18 & Conector Lateral Ofensivo \\
+    Dayotchanculle Upamecano & 47 & 40 & +7 & Conector Defensivo Secundário \\
+    Kylian Mbappé Lottin & 20 & 26 & -6 & \textbf{Alvo/Terminal de Ataque} \\
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+\section{Visualização das Redes de Colaboração}
+Os grafos visualizados (Figura \ref{fig:grafos_passes}) ilustram a matriz de adjacência, onde a espessura da aresta corresponde à frequência (peso) e o tamanho do nó está correlacionado com o grau de envolvimento.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{grafo_passes_Argentina_3869685.png}
+        \caption{Rede de Passes Decisivos da Argentina}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{grafo_passes_France_3869685.png}
+        \caption{Rede de Passes Decisivos da França}
+    \end{minipage}
+    \label{fig:grafos_passes}
+\end{figure}
+
+\section{Análise dos Confrontos Diretos (\textit{Matchings})}
+Os grafos bipartidos de \textit{matchings} (Figura \ref{fig:grafos_matching}) isolam os duelos mais recorrentes.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{grafo_matching_Argentina_France_3869685.png}
+        \caption{Matchings: Argentina (Ofensiva) vs. França (Defesa)}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{grafo_matching_France_Argentina_3869685.png}
+        \caption{Matchings: França (Ofensiva) vs. Argentina (Defesa)}
+    \end{minipage}
+    \label{fig:grafos_matching}
+\end{figure}
+O eixo de maior peso na Figura \ref{fig:grafos_matching} (Esquerda) é o confronto \textbf{Messi $\leftrightarrow$ Camavinga}.
+
+\chapter{Discussão da Análise Tática e Corroboração}
+
+\section{Argentina: o motor central de De Paul e Enzo Fernández}
+Os vértices de maior grau na rede argentina foram Rodrigo De Paul e Enzo Fernández, indicando que o meio-campo atuou como principal canal de progressão ofensiva. Essa estrutura corrobora a análise do portal \textit{Coaches’ Voice}, que apontou que “the control of De Paul, Fernández and Mac Allister in midfield provided Argentina with a platform to dictate tempo and dominate possession” \cite{coachesvoice}. 
+
+Visualmente, o grafo de passes decisivos mostra uma rede compacta e centralizada, com Messi ocupando papel de conector, recebendo e redistribuindo passes entre o meio e o ataque — padrão também reconhecido pelo relatório técnico da FIFA \cite{fifareport}.
+
+\section{França: construção sob pressão e o papel de Varane}
+Na rede francesa, Raphaël Varane e Upamecano apresentaram os maiores graus de saída, confirmando que a França tentou construir a partir da defesa mesmo sob forte pressão. O relatório técnico da FIFA \cite{fifareport} e a análise publicada por \textit{The Mastermind Site} \cite{mastermind} observam que a Argentina aplicou uma pressão coordenada que “forced France’s centre-backs into recycling possession and reduced their passing lanes”. 
+
+O modelo de grafo reflete esse comportamento: passes densos entre os zagueiros e escassez de conexões verticais até o meio-campo.
+
+\section{O duelo-chave: Messi vs. Camavinga}
+O grafo bipartido de confrontos revela o \textit{matching} de maior peso entre Lionel Messi e Eduardo Camavinga. Essa evidência computacional é corroborada por uma análise publicada no \textit{Citizen Digital}, que descreve: 
+\textit{“Eduardo Camavinga played as the left back, and being a natural midfielder, offered flexibility, as he could use his skill set to track Messi’s every move and create overload down midfield.”} \cite{citizen_camavinga} 
+
+Essa observação reforça que o defensor foi posicionado estrategicamente para seguir Messi entre as linhas e gerar superioridade numérica no meio-campo — comportamento refletido na intensidade de confrontos identificada no grafo.
+
+\section{Mbappé como vértice terminal}
+Os dados revelam que Mbappé teve um Grau de Entrada superior ao de Saída, indicando que era o principal destino dos passes decisivos — o vértice terminal da rede ofensiva francesa. Essa conclusão é suportada pelas estatísticas do \textit{WhoScored} \cite{whoscored}, que relatam que “Mbappé had the highest xG of the match (1.9) and received the majority of France’s progressive passes”. 
+O banco de dados \textit{FBref}, também baseado em StatsBomb, confirma que ele foi o jogador mais acionado nas zonas de finalização \cite{fbref}.
+
+\section{O futuro da análise de dados no futebol}
+O uso de modelos de rede e análise de grafos no futebol é uma tendência consolidada. Segundo a \textit{StatsPerform} \cite{statsperform}, “network-based models and passing graphs are becoming standard tools for elite tactical analysis”.
+
+Nosso estudo demonstra como a aplicação prática desses modelos pode revelar estruturas de colaboração, zonas de pressão e duelos táticos com objetividade matemática.
+
+\chapter{Conclusão}
+A aplicação da Teoria dos Grafos à final da Copa do Mundo de 2022 mostrou-se eficaz na identificação de padrões táticos e duelos estruturais. As redes de passes e os \textit{matchings} revelaram as interdependências entre setores e confirmaram achados qualitativos observados por analistas esportivos renomados.
+O modelo computacional desenvolvido oferece um meio replicável de analisar sistemas coletivos em diferentes contextos, aproximando a Matemática Discreta das ciências do esporte.
+
+\newpage
+\begin{thebibliography}{99}
+
+\bibitem{fifareport}
+FIFA Technical Study Group. \textit{Argentina 3–3 France — World Cup Final — Match Analysis (Technical Report)}. FIFA Training Centre, 2022.
+Disponível em: \url{https://www.fifatrainingcentre.com/media/native/world-cup-2022/report_128083.pdf}. Acesso em: 11 nov. 2025.
+
+\bibitem{coachesvoice}
+Coaches’ Voice. \textit{World Cup final 2022 tactics: Argentina v France}. 19 dez. 2022.
+Disponível em: \url{https://learning.coachesvoice.com/cv/world-cup-final-2022-tactics-argentina-messi-france-mbappe/}. Acesso em: 11 nov. 2025.
+
+\bibitem{mastermind}
+Desmond, Rhys. \textit{Argentina 3–3 France – World Cup Final – Match Analysis}. The Mastermind Site, 19 dez. 2022.
+Disponível em: \url{https://themastermindsite.com/2022/12/19/argentina-3-3-france-world-cup-final-match-analysis/}. Acesso em: 11 nov. 2025.
+
+\bibitem{citizen_camavinga}
+Citizen Digital. \textit{Qatar World Cup 2022 Final – The Talking Points}. 19 dez. 2022.
+Disponível em: \url{https://www.citizen.digital/article/qatar-world-cup-2022-final-the-talking-points-n311471}. Acesso em: 11 nov. 2025.
+
+\bibitem{espn}
+Sagar, Srinivas. \textit{2022 World Cup final: Decoding the tactical battle between Argentina and France}. ESPN, 17 dez. 2022.
+Disponível em: \url{https://www.espn.co.uk/football/story/_/id/35268409/2022-world-cup-final-argentina-messi-france-mbappe-tactical-battle}. Acesso em: 11 nov. 2025.
+
+\bibitem{whoscored}
+WhoScored. \textit{Argentina 3–3 France — Match Report (World Cup Final)}. 2022.
+Disponível em: \url{https://www.whoscored.com/Matches/1611851/Live/World-Cup-2022-Argentina-France}. Acesso em: 11 nov. 2025.
+
+\bibitem{fbref}
+FBref. \textit{Kylian Mbappé — Player match logs and statistics}. 2022–2023.
+Disponível em: \url{https://fbref.com/en/players/42fd9c7f/Kylian-Mbappe}. Acesso em: 11 nov. 2025.
+
+\bibitem{statsperform}
+StatsPerform. \textit{The Future of Football Analytics: Network Models and Tactical Insights}. Technical Report, 2023.
+Disponível em: \url{https://www.statsperform.com/resource/the-future-of-football-analytics}. Acesso em: 11 nov. 2025.
+
+\end{thebibliography}
+
+\end{document}
