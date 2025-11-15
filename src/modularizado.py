@@ -6,6 +6,8 @@ import math
 
 print("ANALISADOR DE REDES - STATSBOMB")
 print("==================================\n")
+#CÒDIGO FRANÇA X ARGENTINA: 3869685
+#CÓDIGO MARROCOS X ESPANHA: 369220
 
 # A PESSOA COLOCA O ID DO JOGO AQUI 
 MATCH_ID = int(input("Insira o ID do jogo no StatsBomb: "))
