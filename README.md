@@ -44,19 +44,24 @@ Você pode digitar um ID manualmente ou digitar "s" para usar um ID aleatório d
 
 
 ```
-ANALISADOR DE REDES - STATSBOMB
-==================================
+SISTEMA INTEGRADO DE ANÁLISE STATSBOMB
+Usar ID aleatório? (s/n): n
 Insira o ID do jogo no StatsBomb: 3869220
-Buscando jogo ID: 3869220...
-Morocco vs Spain
+
+--- Análise de Rede de Passes ---
+ Morocco vs Spain
 
 Analisando Morocco...
-  Jogador mais conectado: Azzedine Ounahi (78 conexões)
-  Arquivos salvos: data/matriz_Morocco.csv, figures/grafo_Morocco.png
+   Jogador mais conectado: Walid Cheddira (4 conexões)
+   Arquivos salvos:
+     - data/Morocco_vs_Spain/matriz_passes_Morocco_3869220.csv
+     - figures/Morocco_vs_Spain/grafo_passes_Morocco_3869220.png
 
 Analisando Spain...
-  Jogador mais conectado: Rodrigo Hernández (399 conexões)
-  Arquivos salvos: data/matriz_Spain.csv, figures/grafo_Spain.png
+   Jogador mais conectado: Álvaro Borja Morata Martín (6 conexões)
+   Arquivos salvos:
+     - data/Morocco_vs_Spain/matriz_passes_Spain_3869220.csv
+     - figures/Morocco_vs_Spain/grafo_passes_Spain_3869220.png
 ```
 ---
 
