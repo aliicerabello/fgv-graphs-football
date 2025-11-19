@@ -1,40 +1,179 @@
-# Modelagem de Redes - Trabalho A2 (Capítulo 3)
+# Análise Computacional de Estratégias Coletivas no Futebol
 
-Este repositório contém o trabalho da disciplina **Introdução à Modelagem (2025.1)** da EMAp, ministrada pelo Prof. Walter Sande. O objetivo é implementar e analisar diferentes modelos de geração e crescimento de redes, além de comparar suas propriedades.
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](#)
+[![NetworkX](https://img.shields.io/badge/NetworkX-Graphs-yellow.svg)](#)
+[![Status](https://img.shields.io/badge/Status-Research-orange.svg)](#)
 
-## Descrição do Trabalho
+## Sobre o Projeto
 
-O trabalho está dividido em duas partes principais:
+Este projeto aplica conceitos de **Teoria dos Grafos** para análise computacional de estratégias coletivas no futebol, utilizando dados reais da plataforma **StatsBomb**.  
+Os jogadores são representados como vértices e os passes decisivos como arestas direcionadas e ponderadas, permitindo identificar padrões táticos e estruturas ofensivas e defensivas.
 
-### Parte A: Modelos de Geração de Redes
-1. **Modelo de Erdős-Rényi (Rede Aleatória)**: Gera uma rede onde cada aresta é criada com uma probabilidade fixa `p`.
-2. **Modelo de Watts-Strogatz (Mundo Pequeno)**: Parte de uma rede regular em anel e redireciona arestas com uma probabilidade dada.
-3. **Rede Aleatória com Comunidades**: Similar ao modelo de Erdős-Rényi, mas com probabilidades diferenciadas para ligações dentro e entre comunidades.
+### Estudos de Caso Analisados
 
-### Parte B: Modelos de Crescimento de Redes
-1. **Modelo de Anexação Uniforme**: Novos nós se conectam a nós existentes com probabilidade uniforme.
-2. **Modelo de Barabási-Albert (Anexação Preferencial)**: Novos nós preferem se conectar a nós já bem conectados.
-3. **Modelo de Price**: Combina anexação preferencial e uniforme, com uma proporção ajustável.
+- **Argentina 3 x 3 França** — Final da Copa do Mundo 2022  
+- **Marrocos 0 x 0 Espanha** — Oitavas de Final da Copa do Mundo 2022
 
-### Tarefa Adicional (Item 2)
-Análise comparativa de quatro redes pré-definidas (Redes A, B, C e D) usando medidas de centralidade (grau, closeness, betweenness e PageRank) para nós específicos.
+---
 
-## Requisitos
-- Python (com bibliotecas como NetworkX, Matplotlib, NumPy) ou MATLAB.
-
-## Estrutura do Repositório
-- `src/`: Códigos para gerar e analisar os modelos.
-  - `erdos_renyi.py`
-  - `watts_strogatz.py`
-  - `rede_comunidades.py`
-  - `modelo_uniforme.py`
-  - `modelo_preferencial.py`
-  - `modelo_price.py`
-  - `rede_item2.py`
-- `data/`: Arquivos de dados, como `redes.xlsx` com as listas de arestas.
-- `results/`: Visualizações, gráficos e métricas calculadas.
-- `report/`: Relatório detalhando metodologia, análises e conclusões.
 ## Como Executar
-1. Clone o repositório:
-   ```bash
-   git clone [https://github.com/aliicerabello/trabalho-redes.git]
+
+### Pré-requisitos
+
+- Python 3.8+
+- Git
+
+### Instalação
+
+```bash
+git clone https://github.com/aliicerabello/fgv-graphs-football
+cd fgv-graphs-football
+```
+
+### Execução
+
+```bash
+cd src
+python main.py
+```
+Após rodar o comando acima, o terminal solicitará o ID da partida.
+Você pode digitar um ID manualmente ou digitar "s" para usar um ID aleatório da Copa do Mundo 2022.
+
+
+## Exemplo de Uso
+
+
+```
+ANALISADOR DE REDES - STATSBOMB
+==================================
+Insira o ID do jogo no StatsBomb: 3869220
+Buscando jogo ID: 3869220...
+Morocco vs Spain
+
+Analisando Morocco...
+  Jogador mais conectado: Azzedine Ounahi (78 conexões)
+  Arquivos salvos: data/matriz_Morocco.csv, figures/grafo_Morocco.png
+
+Analisando Spain...
+  Jogador mais conectado: Rodrigo Hernández (399 conexões)
+  Arquivos salvos: data/matriz_Spain.csv, figures/grafo_Spain.png
+```
+---
+
+## Estrutura do Projeto
+
+```
+fgv-graphs-football/
+
+├── report/
+│   ├── relatorio.pdf
+│   └── relatorio.tex
+├── src/
+│   ├── main.py
+│   ├── passes.py
+│   ├── matching.py
+│   └── find_id.py
+├── data/
+|   ├── Argentina_vs_France/
+│       ├── matriz_passes_Argentina_3869685.csv
+│       ├── matriz_passes_France_3869685.csv
+│       ├── matriz_matching_Argentina_France.csv
+│       └── matriz_matching_France_Argentina.csv
+│   ├── Morocco_vs_Spain/
+│       ├── matriz_passes_Morocco_3869220.csv
+│       ├── matriz_passes_Spain_3869220.csv
+│       ├── matriz_matching_Morocco_Spain.csv
+│       └── matriz_matching_Spain_Morocco.csv
+└── figures/
+|   ├── Argentina_vs_France/
+│       ├── grafo_passes_France_3869685.png
+│       ├── grafo_passes_Argentina_3869685.png
+│       ├── grafo_matching_Argentina_France_3869685.png
+│       └── grafo_matching_France_Argentina_3869685.png
+|   ├── Morocco_vs_Spain/
+│       ├── grafo_passes_Morocco_3869220.png
+│       ├── grafo_passes_Spain_3869220.png
+│       ├── grafo_matching_Morocco_Spain_3869220.png
+│       └── grafo_matching_Spain_Morocco_3869220.png
+└──
+```
+---
+
+## Funcionalidades
+### Análise de Redes de Passes
+
+- Identificação de passes decisivos;
+- Cálculo de graus de entrada e saída;
+- Geração de matrizes de adjacência em CSV;
+- Visualização de grafos das redes coletivas.
+
+### Análise de Matchings Defensivos
+
+- Identificação de confrontos diretos entre atacantes e defensores;
+- Cálculo de matchings máximos ponderados utilizando NetworkX;
+- Identificação dos duelos mais relevantes.
+
+### Métricas Calculadas
+
+- Grau de centralidade dos jogadores;
+- Densidade da rede de passes;
+- Matchings defensivos mais relevantes;
+- Padrões ofensivos e defensivos.
+
+---
+## IDs de Exemplo
+```
+3869685 — Argentina vs França
+
+3869220 — Marrocos vs Espanha
+```
+---
+
+## Dependências
+
+```bash
+statsbombpy
+pandas
+networkx
+matplotlib
+numpy
+```
+---
+
+## Resultados e Análises
+
+O relatório completo (relatorio.pdf) inclui:
+
+- Análise quantitativa dos graus dos vértices;
+- Visualizações das redes de passes e matchings defensivos;
+- Interpretação dos padrões táticos identificados;
+- Comparação entre filosofias de jogo;
+- Validação metodológica com múltiplos casos.
+
+---
+
+## Autores
+
+- Alice Rabello Oliveira
+- Pablo Levy Fernandes Alcântara
+- Raul Medici Martinelli
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
