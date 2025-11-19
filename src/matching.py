@@ -8,28 +8,24 @@ from matplotlib.patches import Patch
 
 def analisar_matching(match_id):
     """Executa a análise de matching tático bipartido para o jogo informado."""
-    print("ANALISADOR DE MATCHING - STATSBOMB")
-    print("==================================\n")
 
-    # === Caminhos relativos fixos à raiz do projeto ===
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DATA_DIR = os.path.join(BASE_DIR, "data")
-    FIG_DIR = os.path.join(BASE_DIR, "figures")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    data_dir = os.path.join(base_dir, "data")
+    fig_dir = os.path.join(base_dir, "figures")
 
     try:
-        print(f"Buscando jogo ID: {match_id}...")
         events = sb.events(match_id=match_id)
         times = [t for t in events['team'].dropna().unique() if t]
         time1, time2 = times[0], times[1]
         print(f" {time1} vs {time2}")
 
         nome_jogo = f"{time1}_vs_{time2}".replace(" ", "_")
-        data_path = os.path.join(DATA_DIR, nome_jogo)
-        fig_path = os.path.join(FIG_DIR, nome_jogo)
+        data_path = os.path.join(data_dir, nome_jogo)
+        fig_path = os.path.join(fig_dir, nome_jogo)
         os.makedirs(data_path, exist_ok=True)
         os.makedirs(fig_path, exist_ok=True)
 
-        # === Funções auxiliares ===
+        # Funções auxiliares
         def encontrar_driblador_desarmado(events, tackle_index, team_atacante):
             try:
                 prev_event = events[events['index']
@@ -106,10 +102,10 @@ def analisar_matching(match_id):
             conexao = df.groupby(['atacante', 'defensor'])[
                 'score'].sum().reset_index(name='weight')
 
-            A_nodes = set(conexao['atacante'])
-            B_nodes = set(conexao['defensor'])
-            G.add_nodes_from(A_nodes, bipartite=0)
-            G.add_nodes_from(B_nodes, bipartite=1)
+            a_nodes = set(conexao['atacante'])
+            b_nodes = set(conexao['defensor'])
+            G.add_nodes_from(a_nodes, bipartite=0)
+            G.add_nodes_from(b_nodes, bipartite=1)
             for _, row in conexao.iterrows():
                 G.add_edge(row['atacante'], row['defensor'],
                            weight=row['weight'])
@@ -138,7 +134,7 @@ def analisar_matching(match_id):
                 elif v in atacantes and u in defensores:
                     matriz.loc[v, u] = data['weight']
             path = os.path.join(
-                data_path, f"matriz_defensores_{team_atacante}_{team_defensor}_{match_id}.csv")
+                data_path, f"matriz_matching_{team_atacante}_{team_defensor}.csv")
             matriz.to_csv(path, encoding='utf-8-sig')
 
         def visualizar_grafo(G, matching_edges, team_atacante, team_defensor, filename):
@@ -146,18 +142,18 @@ def analisar_matching(match_id):
                 return
 
             plt.figure(figsize=(20, 12))
-            nodes_A = {n for n, d in G.nodes(
+            nodes_a = {n for n, d in G.nodes(
                 data=True) if d.get('bipartite') == 0}
-            nodes_B = {n for n, d in G.nodes(
+            nodes_b = {n for n, d in G.nodes(
                 data=True) if d.get('bipartite') == 1}
-            pos = nx.bipartite_layout(G, nodes_A, scale=2.0, aspect_ratio=1.2)
+            pos = nx.bipartite_layout(G, nodes_a, scale=2.0, aspect_ratio=1.2)
             for node, (x, y) in pos.items():
-                pos[node] = (x - 1.5, y) if node in nodes_A else (x + 1.5, y)
+                pos[node] = (x - 1.5, y) if node in nodes_a else (x + 1.5, y)
 
             nx.draw_networkx_nodes(
-                G, pos, nodelist=nodes_A, node_color="#FF6B35", node_size=1200, edgecolors='black')
+                G, pos, nodelist=nodes_a, node_color="#FF6B35", node_size=1200, edgecolors='black')
             nx.draw_networkx_nodes(
-                G, pos, nodelist=nodes_B, node_color="#004E89", node_size=1200, edgecolors='black')
+                G, pos, nodelist=nodes_b, node_color="#004E89", node_size=1200, edgecolors='black')
             nx.draw_networkx_edges(
                 G, pos, width=1, edge_color='gray', alpha=0.4, style='dashed')
 
@@ -187,7 +183,7 @@ def analisar_matching(match_id):
                         bbox_inches='tight', facecolor='white')
             plt.close()
 
-        # === Execução ===
+        # Execução
         for ataque, defesa in [(time1, time2), (time2, time1)]:
             print(f"\nAnalisando {ataque} (Atacante) vs {defesa} (Defensor)")
             G = criar_grafo_score_vantagem(events, ataque, defesa)
@@ -197,7 +193,7 @@ def analisar_matching(match_id):
                 fig_file = os.path.join(
                     fig_path, f"grafo_matching_{ataque}_{defesa}_{match_id}.png")
                 visualizar_grafo(G, matching, ataque, defesa, fig_file)
-                print(f"  -> Grafo salvo em {fig_file}")
+                print(f"  Grafo salvo em {fig_file}")
 
     except Exception as e:
-        print(f"[ERRO GERAL em Matching] {e.__class__.__name__}: {e}")
+        print(f"[ERRO em Matching] {e.__class__.__name__}: {e}")

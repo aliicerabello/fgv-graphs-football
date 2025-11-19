@@ -7,29 +7,24 @@ import os
 
 def analisar_rede(match_id):
     """Executa a análise de rede de passes decisivos para o jogo informado."""
-    print("ANALISADOR DE REDES - STATSBOMB")
-    print("==================================\n")
 
-    # === Caminhos relativos à raiz do projeto ===
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DATA_DIR = os.path.join(BASE_DIR, "data")
-    FIG_DIR = os.path.join(BASE_DIR, "figures")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    data_dir = os.path.join(base_dir, "data")
+    fig_dir = os.path.join(base_dir, "figures")
 
-    # Capturamos as exceções mais prováveis para evitar 'except Exception' genérico
     try:
-        print(f"Buscando jogo ID: {match_id}...")
         events = sb.events(match_id=match_id)
         times = [t for t in events['team'].dropna().unique() if t]
         time1, time2 = times[0], times[1]
         print(f" {time1} vs {time2}")
 
         nome_jogo = f"{time1}_vs_{time2}".replace(" ", "_")
-        data_path = os.path.join(DATA_DIR, nome_jogo)
-        fig_path = os.path.join(FIG_DIR, nome_jogo)
+        data_path = os.path.join(data_dir, nome_jogo)
+        fig_path = os.path.join(fig_dir, nome_jogo)
         os.makedirs(data_path, exist_ok=True)
         os.makedirs(fig_path, exist_ok=True)
 
-        # === Funções internas ===
+        # Funções auxiliares
 
         def leads_to_shot(passe, chutes_time):
             """Retorna True se o passe leva a um chute dentro de 5s na mesma posse."""
@@ -52,23 +47,34 @@ def analisar_rede(match_id):
                     return True
             return False
 
+        def is_pass_in_penalty_area(passe):
+            """Verifica se o passe foi feito dentro da grande área"""
+            try:
+                location = passe.get("location")
+                if location and len(location) >= 2:
+                    x, y = location[0], location[1]
+                    return x > 102 and 18 < y < 62
+            except (TypeError, IndexError, KeyError):
+                return False
+            return False
+
         def identificar_passes_decisivos(passes_df, team_name, all_events):
             decisivos = []
-            # chutes agora é usado pela função leads_to_shot
             chutes = all_events[(all_events["type"] == "Shot") & (
                 all_events["team"] == team_name)]
 
             for _, passe in passes_df.iterrows():
-                # Captura de exceções específicas dentro do loop
                 try:
                     condicoes = [
-                        passe.get("pass_goal_assist"),
-                        passe.get("pass_shot_assist"),
-                        passe.get("pass_through_ball"),
-                        passe.get("pass_cross"),
+                        passe.get("pass_goal_assist") == True,
+                        passe.get("pass_shot_assist") == True,
+                        passe.get("pass_through_ball") == True,
+                        passe.get("pass_cross") == True,
                         passe.get("play_pattern") == "Counter Attack",
+                        is_pass_in_penalty_area(passe),
                         leads_to_shot(passe, chutes),
                     ]
+
                     if any(condicoes) and pd.notna(passe.get("pass_recipient")):
                         decisivos.append({
                             "player": passe["player"],
@@ -76,7 +82,6 @@ def analisar_rede(match_id):
                             "team": team_name,
                         })
                 except (KeyError, TypeError, IndexError):
-                    # ignora eventos malformados e continua
                     continue
 
             return decisivos
@@ -134,7 +139,7 @@ def analisar_rede(match_id):
                         bbox_inches="tight", facecolor="white")
             plt.close()
 
-        # === Execução principal ===
+        # Execução principal
 
         for time in [time1, time2]:
             print(f"\nAnalisando {time}...")
@@ -165,8 +170,8 @@ def analisar_rede(match_id):
             visualizar_grafo(G, time, fig_file)
 
             print("   Arquivos salvos:")
-            print(f"     - {os.path.relpath(matriz_path, BASE_DIR)}")
-            print(f"     - {os.path.relpath(fig_file, BASE_DIR)}")
+            print(f"     - {os.path.relpath(matriz_path, base_dir)}")
+            print(f"     - {os.path.relpath(fig_file, base_dir)}")
 
     except (OSError, ValueError, KeyError, IndexError, nx.NetworkXError) as e:
         print(f"[ERRO GERAL em Rede] {e.__class__.__name__}: {e}")

@@ -5,7 +5,6 @@ from matching import analisar_matching
 
 def main():
     print("SISTEMA INTEGRADO DE ANÁLISE STATSBOMB")
-    print("=======================================")
 
     usar_auto = input("Usar ID aleatório? (s/n): ").strip().lower()
     if usar_auto == 's':
