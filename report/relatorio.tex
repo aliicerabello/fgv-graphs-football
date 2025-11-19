@@ -13,18 +13,18 @@
 
 \usepackage{titlesec}
 
-% ---- Configuração do Sumário (TOC) ----
-% Mostra apenas até o nível de Seção (Capítulo e Seção), escondendo subseções.
+% ----  ----
+% .
 \setcounter{tocdepth}{1} 
 
-% ---- Formatação de capítulo sem "Capítulo" ----
+% ----  ----
 \titleformat{\chapter}
 {\normalfont\Large\bfseries}
 {\thechapter\ }{0pt}{}
 \titlespacing*{\chapter}{0pt}{10pt}{8pt}
 
 % ====================================================================
-% CORREÇÃO: USAR COMANDOS MAIS SIMPLES PARA EVITAR QUEBRAS DE PÁGINA
+
 % ====================================================================
 \usepackage{etoolbox}
 \makeatletter
@@ -35,7 +35,7 @@
 \usepackage{lmodern}
 \usepackage{amsmath, amssymb, graphicx, booktabs, array, hyperref, listings, xcolor, float, tabularx}
 
-% --- Estilo do código ---
+% ---  ---
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.98,0.98,0.98}
@@ -66,7 +66,7 @@
 
 \begin{document}
 	
-	% CAPA E SUMÁRIO NA PRIMEIRA PÁGINA
+	% 
 	\begin{titlepage}
 		\centering
 		{\Large \textbf{Análise Computacional de Estratégias Coletivas no Futebol: \\ Uma Aplicação da Teoria dos Grafos a Dados Reais de Partidas}} \\
@@ -78,7 +78,7 @@
 		\today
 		\vspace{0.5cm}
 		
-		% SUMÁRIO (Configurado para ser compacto)
+		
 		\tableofcontents
 	\end{titlepage}
 	
