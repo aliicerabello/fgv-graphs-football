@@ -4,7 +4,6 @@
 \usepackage{geometry}
 \geometry{a4paper, left=2.5cm, right=2cm, top=1cm, bottom=1.5cm}
 
-% Pacotes essenciais
 \usepackage{setspace}
 \onehalfspacing
 
@@ -13,11 +12,8 @@
 
 \usepackage{titlesec}
 
-% ----  ----
-% .
 \setcounter{tocdepth}{1} 
 
-% ----  ----
 \titleformat{\chapter}
 {\normalfont\Large\bfseries}
 {\thechapter\ }{0pt}{}
@@ -35,7 +31,7 @@
 \usepackage{lmodern}
 \usepackage{amsmath, amssymb, graphicx, booktabs, array, hyperref, listings, xcolor, float, tabularx}
 
-% ---  ---
+
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.98,0.98,0.98}
@@ -66,7 +62,6 @@
 
 \begin{document}
 	
-	% 
 	\begin{titlepage}
 		\centering
 		{\Large \textbf{Análise Computacional de Estratégias Coletivas no Futebol: \\ Uma Aplicação da Teoria dos Grafos a Dados Reais de Partidas}} \\
@@ -77,7 +72,6 @@
 		\vspace{0.3cm}
 		\today
 		\vspace{0.5cm}
-		
 		
 		\tableofcontents
 	\end{titlepage}
@@ -113,7 +107,7 @@
 	\chapter{Teoria dos Grafos Aplicada ao Futebol}
 	
 	\section{Grafos Dirigidos e Ponderados}
-	Um grafo dirigido (ou dígrafo) $G = (V, E)$ é composto por um conjunto de vértices ($V$) e um conjunto de arestas direcionadas ($E$). Em nosso modelo, $V$ representa os jogadores e $E$ representa os passes decisivos entre eles. O grafo é \textbf{ponderado} ($G = (V, E, w)$), onde $w(u,v)$ indica o peso da aresta do vértice $u$ para $v$, representando a frequência ou importância dos passes decisivos.
+	Um grafo dirigido (ou dígrafo) $G = (V, E)$ é composto por um conjunto de vértices ($V$) e um conjunto de arestas direcionadas ($E$). Em nosso modelo, $V$ representa os jogadores e $E$ representa os passes decisivos entre eles. O grafo é \textbf{ponderado} ($G = (V, E, w)$), onde $w(u,v)$ indica o peso da aresta do vértice $u$ para $v$, representando a frequência ou importância dos passes decisivos \cite{wilson2010}.
 	
 	Esta representação permite capturar não apenas a existência de interações, mas também sua intensidade e direcionalidade, aspectos fundamentais para entender a dinâmica do jogo.
 	
@@ -125,11 +119,11 @@
 	\text{out-degree}(u) = \sum_{v \in V} A_{uv} \quad \text{e} \quad \text{in-degree}(v) = \sum_{u \in V} A_{uv}
 	\]
 	
-	O Grau de Saída indica a capacidade de distribuição de um jogador, enquanto o Grau de Entrada mede o quanto ele é buscado como alvo na progressão da jogada. A diferença entre esses valores revela o papel tático do jogador: distribuidores têm diferença positiva, enquanto finalizadores tendem a ter diferença negativa.
+	O Grau de Saída indica a capacidade de distribuição de um jogador, enquanto o Grau de Entrada mede o quanto ele é buscado como alvo na progressão da jogada. A diferença entre esses valores revela o papel tático do jogador: distribuidores têm diferença positiva, enquanto finalizadores tendem a ter diferença negativa \cite{aronna2025}.
 	
 	\section{Matchings Ponderados em Grafos Bipartidos}
 	
-	O conceito de \textbf{matching} (emparelhamento) em grafos bipartidos constitui uma das ferramentas mais poderosas da Teoria dos Grafos para análise de interações entre conjuntos disjuntos. Formalmente, dado um grafo bipartido $G = (U \cup V, E)$, onde $U$ e $V$ são conjuntos disjuntos de vértices, um \textit{matching} $M \subseteq E$ é um conjunto de arestas tal que nenhum vértice incide em mais de uma aresta de $M$.
+	O conceito de \textbf{matching} (emparelhamento) em grafos bipartidos constitui uma das ferramentas mais poderosas da Teoria dos Grafos para análise de interações entre conjuntos disjuntos \cite{wilson2010}. Formalmente, dado um grafo bipartido $G = (U \cup V, E)$, onde $U$ e $V$ são conjuntos disjuntos de vértices, um \textit{matching} $M \subseteq E$ é um conjunto de arestas tal que nenhum vértice incide em mais de uma aresta de $M$.
 	
 	No contexto deste trabalho, buscamos não apenas um matching qualquer, mas o \textbf{matching máximo ponderado} que maximiza a soma dos pesos das interações. O problema é formulado como:
 	
@@ -178,7 +172,7 @@
 	\begin{lstlisting}[caption={Identificação de Passes Decisivos}]
 		def identificar_passes_decisivos(passes_df, team_name, all_events):
 		decisivos = []
-		chutes = all_events[(all_events["type"] == "Shot") &
+		chutes = all_events[(all_events["type"] == "Shot") & 
 		(all_events["team"] == team_name)]
 		
 		for _, passe in passes_df.iterrows():
@@ -271,14 +265,14 @@
 	
 	A análise da final da Copa do Mundo de 2022 revelou padrões táticos distintos entre as duas equipes, que se refletiram diretamente na topologia dos grafos gerados.
 	
-	O trio de meio-campo (Enzo Fernández, De Paul e Mac Allister) formou \textit{cliques} densamente conectados, permitindo à equipe manter a posse sob pressão através de triangulações curtas. A estratégia de Scaloni focou em sobrecarregar o setor central, o que se traduziu graficamente em uma alta densidade de arestas entre jogadores de meio de campo, conforme observado no relatório técnico da FIFA \cite{fifa_general}.
+	O trio de meio-campo (Enzo Fernández, De Paul e Mac Allister) formou cliques densamente conectados, permitindo à equipe manter a posse sob pressão através de triangulações curtas. A estratégia de Scaloni focou em sobrecarregar o setor central, o que se traduziu graficamente em uma alta densidade de arestas entre jogadores de meio de campo, conforme observado no relatório técnico da FIFA \cite{fifa_general}.
 	
-	Em contraste, o grafo francês refletiu a dificuldade da equipe em conectar seus setores defensivo e ofensivo. A estratégia francesa baseou-se na "eficiência terminal" e em transições rápidas para acionar seus atacantes. Enquanto a Argentina dependia da robustez coletiva da rede, a França buscou explorar espaços através de ataques diretos, um padrão destacado na análise tática da \textit{Breaking The Lines} \cite{breakingthelines}.
+	Em contraste, o grafo francês refletiu a dificuldade da equipe em conectar seus setores defensivo e ofensivo. A estratégia francesa baseou-se na eficiência terminal e em transições rápidas para acionar seus atacantes. Enquanto a Argentina dependia da robustez coletiva da rede, a França buscou explorar espaços através de ataques diretos, um padrão destacado na análise tática da \textit{Breaking The Lines} \cite{breakingthelines}.
 	
 	
 	\begin{table}[H]
 		\centering
-		\caption{Graus de Entrada e Saída - Argentina}
+		\caption{Graus de Entrada e Saída - Argentina (Top 3)}
 		\label{tab:graus_arg}
 		\begin{tabular}{lcccc}
 			\toprule
@@ -287,14 +281,13 @@
 			Lionel Messi & 8 & 9 & -1 & Finalizador/Criador \\
 			Rodrigo De Paul & 6 & 4 & +2 & Conector Ofensivo \\
 			Ángel Di María & 6 & 3 & +3 & Ponta Criativo \\
-			Alexis Mac Allister & 3 & 5 & -2 & Meia Ofensivo \\
 			\bottomrule
 		\end{tabular}
 	\end{table}
 	
 	\begin{table}[H]
 		\centering
-		\caption{Graus de Entrada e Saída - França}
+		\caption{Graus de Entrada e Saída - França (Top 3)}
 		\label{tab:graus_fra}
 		\begin{tabular}{lcccc}
 			\toprule
@@ -303,7 +296,6 @@
 			Kylian Mbappé & 3 & 2 & +1 & Atacante Total \\
 			Adrien Rabiot & 2 & 2 & 0 & Equilíbrio Central \\
 			Marcus Thuram & 1 & 3 & -2 & Ponta Agudo \\
-			Randal Kolo Muani & 0 & 4 & -4 & Alvo Final \\
 			\bottomrule
 		\end{tabular}
 	\end{table}
@@ -313,21 +305,37 @@
 	
 	\begin{table}[H]
 		\centering
-		\caption{Matchings Mais Relevantes - Argentina vs França}
+		\caption{Matchings Mais Relevantes - Argentina vs França (Top 3)}
 		\label{tab:matchings_arg_fra}
 		\begin{tabular}{lclc}
 			\toprule
 			\textbf{Atacante} & \textbf{Defensor} & \textbf{Peso} & \textbf{Significado Tático} \\
 			\midrule
-			Messi & Camavinga & 8.7 & Marcação específica ao criador \\
-			Di María & Koundé & 6.3 & Duelo técnico na lateral direita \\
-			Álvarez & Upamecano & 5.9 & Confronto físico no centro \\
-			De Paul & Tchouaméni & 5.2 & Batalha no meio-campo \\
+			Lionel Messi & Eduardo Camavinga & 6 & Marcação específica ao criador \\
+			Ángel Di María & Jules Koundé & 3 & Duelo técnico na lateral direita \\
+			Gonzalo Montiel & Eduardo Camavinga & 3 & Batalha pelo flanco direito \\
 			\bottomrule
 		\end{tabular}
 	\end{table}
 	
-	O matching Messi-Camavinga revela uma estratégia defensiva de ajuste físico por parte da equipe francesa. A alta ponderação desta aresta no grafo bipartido corrobora a análise do \textit{Coaches' Voice}, que destaca como as mudanças de Deschamps visaram introduzir energia e capacidade de duelo no meio-campo para conter a fluidez argentina \cite{coachesvoice_arg_fra}. A presença de Camavinga dificultou a zona de operação de Messi através de pressão física e cobertura.
+	Os matchings revelam que a Argentina focou em explorar os flancos, com Di María buscando constantemente o duelo contra Koundé. O matching Messi-Camavinga (peso 6) foi o mais intenso, mostrando a estratégia francesa de designar Camavinga para neutralizar o principal criador argentino.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Matchings Mais Relevantes - França vs Argentina (Top 3)}
+		\label{tab:matchings_fra_arg}
+		\begin{tabular}{lclc}
+			\toprule
+			\textbf{Atacante} & \textbf{Defensor} & \textbf{Peso} & \textbf{Significado Tático} \\
+			\midrule
+			Eduardo Camavinga & Leandro Paredes & 3 & Contenção do organizador argentino \\
+			Randal Kolo Muani & Enzo Fernandez & 3 & Pressão sobre o meia central \\
+			Kylian Mbappé & Nicolás Otamendi & 2 & Duelo de velocidade no ataque \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	Do lado francês, os matchings mostram uma estratégia de pressão distribuída no meio-campo. Camavinga contra Paredes (peso 3) revela o foco em neutralizar o organizador de jogo argentino, enquanto Kolo Muani pressionava Enzo Fernandez (peso 3) para dificultar a saída de bola. Mbappé contra Otamendi (peso 2) representou o clássico duelo entre velocidade e experiência na defesa.
 	
 	\section{Validação Metodológica: Marrocos vs Espanha}
 	
@@ -336,7 +344,7 @@
 	
 	\begin{table}[H]
 		\centering
-		\caption{Graus de Entrada e Saída - Espanha}
+		\caption{Graus de Entrada e Saída - Espanha (Top 3)}
 		\label{tab:graus_esp}
 		\begin{tabular}{lcccc}
 			\toprule
@@ -344,7 +352,6 @@
 			\midrule
 			Pablo Sarabia & 3 & 3 & 0 & Ponta Incisivo \\
 			Rodri & 3 & 3 & 0 & Organizador Defensivo \\
-			Álvaro Morata & 2 & 4 & -2 & Centroavante \\
 			Carlos Soler & 3 & 1 & +2 & Meia de Chegada \\
 			\bottomrule
 		\end{tabular}
@@ -352,16 +359,15 @@
 	
 	\begin{table}[H]
 		\centering
-		\caption{Graus de Entrada e Saída - Marrocos}
+		\caption{Graus de Entrada e Saída - Marrocos (Top 3)}
 		\label{tab:graus_mar}
 		\begin{tabular}{lcccc}
 			\toprule
 			\textbf{Jogador} & \textbf{Grau Saída} & \textbf{Grau Entrada} & \textbf{Dif.} & \textbf{Papel Tático} \\
 			\midrule
+			Achraf Hakimi & 3 & 0 & +3 & Lateral Ofensivo \\
 			Walid Cheddira & 1 & 3 & -2 & Contra-ataque \\
 			Youssef En-Nesyri & 0 & 4 & -4 & Alvo Aéreo \\
-			Achraf Hakimi & 3 & 0 & +3 & Lateral Ofensivo \\
-			Abde Ezzalzouli & 1 & 1 & 0 & Válvula de Escape \\
 			\bottomrule
 		\end{tabular}
 	\end{table}
@@ -373,28 +379,44 @@
 	
 	\textbf{Espanha}: Estrutura baseada em posse posicional, mas com baixa penetração na área adversária. O relatório técnico aponta que a Espanha circulou a bola predominantemente em zonas de segurança, falhando em gerar situações claras de gol.
 	
-	\textbf{Marrocos}: Estrutura direta e transicional. A análise tática reforça como o "bloco médio-baixo" do Marrocos forçou a Espanha para as laterais, enquanto os contra-ataques rápidos centralizavam-se em jogadores de velocidade como Hakimi \cite{fifa_morocco_spain_report}.
+	\textbf{Marrocos}: Estrutura direta e transicional. A análise tática reforça como o bloco médio-baixo do Marrocos forçou a Espanha para as laterais, enquanto os contra-ataques rápidos centralizavam-se em jogadores de velocidade como Hakimi \cite{fifa_morocco_spain_report}.
 	
 	\vspace{0.5cm}
 	\noindent \textbf{Matchings Estratégicos}
 	
 	\begin{table}[H]
 		\centering
-		\caption{Matchings Mais Relevantes - Espanha vs Marrocos}
+		\caption{Matchings Mais Relevantes - Espanha vs Marrocos (Top 3)}
 		\label{tab:matchings_esp_mar}
 		\begin{tabular}{lclc}
 			\toprule
 			\textbf{Atacante} & \textbf{Defensor} & \textbf{Peso} & \textbf{Significado Tático} \\
 			\midrule
-			Ferran Torres & Mazraoui & 7.2 & Duelo técnico na ponta direita \\
-			Pedri & Amrabat & 6.8 & Batalha pelo controle do meio-campo \\
-			Olmo & Saïss & 5.9 & Confronto no setor ofensivo central \\
-			Asensio & Hakimi & 5.4 & Duelo de velocidade na lateral \\
+			Ferran Torres & Noussair Mazraoui & 6 & Duelo de velocidade na lateral \\
+			Pedri & Ounahi & 3 & Batalha pelo meio-campo \\
+			Rodrigo Hernández & Sofiane Boufal & 2 & Contenção do criador marroquino \\
 			\bottomrule
 		\end{tabular}
 	\end{table}
 	
-	Os matchings identificados, especialmente Pedri-Amrabat, refletem a estratégia marroquina de negar espaço aos criadores centrais da Espanha, forçando o jogo para zonas de menor perigo \cite{fifa_morocco_spain_report}.
+	O matching mais relevante foi Ferran Torres contra Mazraoui (peso 6), mostrando que a Espanha focou seu ataque pela direita contra o lateral marroquino.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Matchings Mais Relevantes - Marrocos vs Espanha (Top 3)}
+		\label{tab:matchings_mar_esp}
+		\begin{tabular}{lclc}
+			\toprule
+			\textbf{Atacante} & \textbf{Defensor} & \textbf{Peso} & \textbf{Significado Tático} \\
+			\midrule
+			Sofiane Boufal & Sergio Busquets & 3 & Pressão sobre o pivô espanhol \\
+			Achraf Hakimi & Daniel Carvajal & 2 & Duelo de laterais ofensivos \\
+			Achraf Hakimi & Rodrigo Cascante & 2 & Exploração do corredor direito \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	Os matchings marroquinos revelam uma estratégia bem definida: Boufal pressionando Busquets (peso 3) para cortar a saída de bola espanhola, enquanto Hakimi explorava tanto Carvajal quanto Cascante (peso 2 cada) no flanco direito, buscando criar superioridade numérica nesse setor.
 	
 	\vspace{2.0cm}
 	\noindent \textbf{Visualização das Redes e Matchings}
@@ -471,40 +493,21 @@
 	
 	A estrutura espanhola, baseada em posse posicional, reflete a tradição tática da equipe. No entanto, os grafos corroboram os dados estatísticos da FIFA sobre a ineficiência ofensiva: o alto volume de passes (arestas) resultou em um número insuficiente de conexões perigosas dentro da área, evidenciando uma desconexão entre controle de bola e ameaça real \cite{fifa_morocco_spain_report}.
 	
-	Em contraste, a eficiência marroquina valida as observações táticas sobre a organização defensiva compacta. O matching Pedri-Amrabat (peso 6.8) ilustra perfeitamente como o Marrocos venceu a batalha tática: Amrabat negou consistentemente o espaço interior, forçando a Espanha a circular a bola em zonas inofensivas, conforme detalhado no relatório técnico da partida \cite{fifa_morocco_spain_report}.
+	Em contraste, a eficiência marroquina valida as observações táticas sobre a organização defensiva compacta. O matching Ferrán-Mazraoui (peso 6) ilustra perfeitamente como o Marrocos venceu a batalha tática: Enquanto Ounahi combatia no meio do campo, Mazraoui negou consistentemente o espaço no flanco esquerdo, forçando a Espanha a circular a bola em zonas inofensivas, conforme detalhado no relatório técnico da partida \cite{fifa_morocco_spain_report}.
 	
-	\section{Limitações Metodológicas Aprofundadas}
+	\section{Limitações Metodológicas}
 	
-	Embora a metodologia desenvolvida tenha se mostrado robusta e informativa, várias limitações importantes devem ser reconhecidas:
+	Embora a metodologia desenvolvida tenha se mostrado robusta e informativa, várias limitações importantes devem ser reconhecidas. A precisão das análises está intrinsecamente vinculada à acurácia e completude dos dados fornecidos pelo StatsBomb, onde eventuais inconsistências na categorização de eventos podem distorcer significativamente os resultados. Além disso, fatores contextuais cruciais como o resultado momentâneo, o minuto da partida e condições climáticas não são incorporados no modelo, limitando a interpretação situacional dos padrões identificados. A análise de redes estáticas não captura a evolução tática durante a partida ou substituições estratégicas em tempo real, representando uma visão agregada que pode mascarar ajustes táticos importantes. Por fim, os critérios estabelecidos para passes decisivos envolvem escolhas arbitrárias, como a janela temporal de 5 segundos para passes que geram chutes, que podem influenciar significativamente os resultados obtidos.
 	
-	\begin{itemize}
-		\item \textbf{Dependência da Qualidade dos Dados}: A precisão das análises está intrinsecamente vinculada à acurácia e completude dos dados fornecidos pelo StatsBomb.
-		
-		\item \textbf{Contexto de Jogo Não Capturado}: Fatores contextuais cruciais como o resultado momentâneo, o minuto da partida e condições climáticas não são incorporados no modelo.
-		
-		\item \textbf{Complexidade Defensiva Reduzida}: O foco principal em aspectos ofensivos e confrontos individuais deixa de capturar a complexidade dos sistemas defensivos coletivos.
-		
-		\item \textbf{Dimensão Temporal Limitada}: A análise de redes estáticas não captura a evolução tática durante a partida ou substituições estratégicas em tempo real.
-		
-		\item \textbf{Sensibilidade a Definições Arbitrárias}: Os critérios para passes decisivos envolvem escolhas arbitrárias (como a janela temporal de 5 segundos) que podem influenciar os resultados.
-	\end{itemize}
+	\vspace{0.5cm}
+	\noindent \textbf{Perspectivas Futuras}
 	
-	\section{Perspectivas Futuras e Desenvolvimentos}
-	
-	As limitações identificadas sugerem direções promissoras para pesquisas futuras:
-	
-	\begin{itemize}
-		\item \textbf{Redes Temporais Dinâmicas}: Desenvolvimento de modelos que capturem a evolução das redes de passes ao longo da partida.
-		
-		\item \textbf{Modelos Preditivos}: Utilização dos padrões identificados para desenvolver modelos preditivos de eficácia ofensiva.
-		
-		\item \textbf{Análise de Sistemas Defensivos}: Expansão da metodologia para capturar padrões defensivos coletivos através de métricas de pressão coordenada.
-	\end{itemize}
+	As limitações identificadas sugerem direções promissoras para pesquisas futuras, incluindo o desenvolvimento de redes temporais dinâmicas que capturem a evolução das redes de passes ao longo da partida, a utilização dos padrões identificados para desenvolver modelos preditivos de eficácia ofensiva, e a expansão da metodologia para capturar padrões defensivos coletivos através de métricas de pressão coordenada.
 	
 	% ==============================================
 	\chapter{Conclusão}
 	
-	A aplicação da Teoria dos Grafos para análise computacional de estratégias coletivas no futebol demonstrou ser uma abordagem poderosa e versátil. Os resultados evidenciam a capacidade da metodologia em identificar hierarquias ofensivas, quantificar duelos estratégicos e capturar diferenças filosóficas entre estilos de jogo.
+	A aplicação da Teoria dos Grafos para análise computacional de estratégias coletivas no Futebol demonstrou ser uma abordagem poderosa e versátil. Os resultados evidenciam a capacidade da metodologia em identificar hierarquias ofensivas, quantificar duelos estratégicos e capturar diferenças filosóficas entre estilos de jogo.
 	
 	A comparação entre partidas com características táticas distintas demonstrou a versatilidade da abordagem. Este trabalho consolida a ponte entre Matemática Discreta e ciências do esporte, oferecendo uma ferramenta objetiva e matematicamente fundamentada para decifrar a complexidade do futebol moderno.
 	
@@ -514,25 +517,21 @@
 		FIFA Technical Study Group.
 		\textit{FIFA World Cup Qatar 2022™: Technical Report and Statistics}.
 		Zürich: FIFA, 2023.
-		Disponível em: \url{https://www.fifatrainingcentre.com/en/fwc2022/technical-report/index.php}
 		
 		\bibitem{buldu2018}
 		Buldú, J. M., Busquets, J., Martínez, J. H., et al.
 		``Defining a historic football team: Using Network Science to analyze Guardiola's FC Barcelona''.
 		\textit{Scientific Reports}, 8, 13602, 2018.
-		Disponível em: \url{https://www.nature.com/articles/s41598-018-32018-w}
 		
 		\bibitem{coachesvoice_arg_fra}
 		Coaches' Voice.
 		``World Cup final 2022 tactical analysis: Argentina 3-3 France''.
 		\textit{The Coaches' Voice}, 2022.
-		Disponível em: \url{https://learning.coachesvoice.com/cv/world-cup-final-2022-tactics-argentina-messi-france-mbappe/}
 		
 		\bibitem{fifa_morocco_spain_report}
 		FIFA Technical Study Group.
 		``Match Report: Morocco vs Spain''.
 		\textit{FIFA Training Centre}, 2022.
-		Disponível em: \url{https://www.fifatrainingcentre.com/media/native/world-cup-2022/report_128074.pdf}
 		
 		\bibitem{clemente2015}
 		Clemente, F. M., Couceiro, M. S., Martins, F. M. L., \& Mendes, R. S.
@@ -543,13 +542,21 @@
 		Breaking The Lines.
 		``Tactical Analysis: Argentina 3-3 France''.
 		\textit{Breaking The Lines}, 2022.
-		Disponível em: \url{https://breakingthelines.com/world-cup-2022/tactical-analysis-argentina-3-3-france/}
 		
 		\bibitem{fifa_arg_fra_report}
 		FIFA Technical Study Group.
 		``Match Report: Argentina vs France''.
 		\textit{FIFA Training Centre}, 2022.
-		Disponível em: \url{https://www.fifatrainingcentre.com/media/native/world-cup-2022/report_128083.pdf}
+		
+		\bibitem{aronna2025}
+		Aronna, M. S.
+		\textit{Notas de Aula: Matemática Discreta}.
+		FGV, 2025.
+		
+		\bibitem{wilson2010}
+		Wilson, R. J.
+		\textit{Introduction to Graph Theory}.
+		Longman, 2010.
 		
 	\end{thebibliography}
 	

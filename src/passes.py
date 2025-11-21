@@ -4,7 +4,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 
-
 def analisar_rede(match_id):
     """Executa a análise de rede de passes decisivos para o jogo informado."""
 
@@ -24,7 +23,6 @@ def analisar_rede(match_id):
         os.makedirs(data_path, exist_ok=True)
         os.makedirs(fig_path, exist_ok=True)
 
-        # Funções auxiliares
 
         def leads_to_shot(passe, chutes_time):
             """Retorna True se o passe leva a um chute dentro de 5s na mesma posse."""
@@ -139,7 +137,6 @@ def analisar_rede(match_id):
                         bbox_inches="tight", facecolor="white")
             plt.close()
 
-        # Execução principal
 
         for time in [time1, time2]:
             print(f"\nAnalisando {time}...")
@@ -155,9 +152,31 @@ def analisar_rede(match_id):
             if G is None or G.number_of_nodes() == 0:
                 print("   Grafo vazio.")
                 continue
+            
+            in_degree = dict(G.in_degree(weight="weight"))
+            out_degree = dict(G.out_degree(weight="weight"))
+            
+            tabela_graus = []
+            for jogador in G.nodes():
+                grau_out = out_degree.get(jogador, 0)
+                grau_in = in_degree.get(jogador, 0)
+                tabela_graus.append({
+                    "Jogador": jogador,
+                    "Grau Saída (Fez)": grau_out,
+                    "Grau Entrada (Recebeu)": grau_in,
+                    "Saldo": grau_out - grau_in,
+                    "Total": grau_out + grau_in
+                })
+            
+            df_graus = pd.DataFrame(tabela_graus)
+            df_graus = df_graus.sort_values(by="Total", ascending=False)
+            
+            graus_path = os.path.join(
+                data_path, f"graus_passes_{time}_{match_id}.csv")
+            df_graus.to_csv(graus_path, index=False, encoding="utf-8-sig")
 
-            graus = dict(G.degree(weight="weight"))
-            top_jogador = max(graus.items(), key=lambda x: x[1])
+            graus_geral = dict(G.degree(weight="weight"))
+            top_jogador = max(graus_geral.items(), key=lambda x: x[1])
             print(
                 f"   Jogador mais conectado: {top_jogador[0]} ({top_jogador[1]} conexões)")
 
@@ -170,8 +189,9 @@ def analisar_rede(match_id):
             visualizar_grafo(G, time, fig_file)
 
             print("   Arquivos salvos:")
-            print(f"     - {os.path.relpath(matriz_path, base_dir)}")
-            print(f"     - {os.path.relpath(fig_file, base_dir)}")
+            print(f"     - Tabela Graus: {os.path.relpath(graus_path, base_dir)}")
+            print(f"     - Matriz: {os.path.relpath(matriz_path, base_dir)}")
+            print(f"     - Grafo: {os.path.relpath(fig_file, base_dir)}")
 
     except (OSError, ValueError, KeyError, IndexError, nx.NetworkXError) as e:
         print(f"[ERRO GERAL em Rede] {e.__class__.__name__}: {e}")
