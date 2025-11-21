@@ -80,11 +80,15 @@ fgv-graphs-football/
 │   └── find_id.py
 ├── data/
 |   ├── Argentina_vs_France/
+|       ├── graus_passes_Argentina_3869685.csv
+|       ├── graus_passes_France_3869685.csv
 │       ├── matriz_passes_Argentina_3869685.csv
 │       ├── matriz_passes_France_3869685.csv
 │       ├── matriz_matching_Argentina_France.csv
 │       └── matriz_matching_France_Argentina.csv
 │   ├── Morocco_vs_Spain/
+|       ├── graus_passes_Morocco_3869220.csv
+|       ├── graus_passes_Spain_3869685.csv
 │       ├── matriz_passes_Morocco_3869220.csv
 │       ├── matriz_passes_Spain_3869220.csv
 │       ├── matriz_matching_Morocco_Spain.csv
